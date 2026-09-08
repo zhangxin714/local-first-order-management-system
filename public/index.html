@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#bd514a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="订单系统">
+  <title>客户订单管理系统</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="stylesheet" href="/styles.css?v=2.4.11">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">豆</span>
+      <div><strong>订单管理系统</strong><small>示例食品供应商</small></div>
+    </div>
+    <nav id="navigation">
+      <button class="nav-item active" data-view="dashboard">今日订单</button>
+      <button class="nav-item" data-view="new-order">新增订单</button>
+      <button class="nav-item" data-view="print-center">打印中心</button>
+      <button class="nav-item" data-view="products">商品管理</button>
+      <button class="nav-item" data-view="customers">客户管理</button>
+      <button class="nav-item" data-view="customer-prices">客户价格</button>
+      <button class="nav-item" data-view="ledger">客户账本</button>
+      <button class="nav-item" data-view="history">历史订单</button>
+      <button class="nav-item" data-view="monthly">月度汇总</button>
+      <button class="nav-item" data-view="data">数据导入导出</button>
+      <button class="nav-item" data-view="mobile-access">手机访问</button>
+      <button class="nav-item" data-view="settings">打印设置</button>
+    </nav>
+    <div class="sidebar-foot">本机离线版 · 自动备份</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1 id="page-title">今日订单</h1><p id="page-subtitle">快速录单、汇总和连续打印</p></div>
+      <label class="date-control">工作日期<input id="work-date" type="date"></label>
+    </header>
+
+    <section id="view-dashboard" class="view active">
+      <div class="kpi-grid">
+        <article class="kpi"><span>今日订单</span><strong id="kpi-orders">0</strong><small>笔</small></article>
+        <article class="kpi"><span>待打印</span><strong id="kpi-pending">0</strong><small>笔</small></article>
+        <article class="kpi accent"><span>今日金额</span><strong id="kpi-total">¥0.00</strong></article>
+      </div>
+      <div class="quick-grid">
+        <button class="quick-card" data-go="new-order"><b>＋ 新增订单</b><span>选择客户和商品，金额自动计算</span></button>
+        <button class="quick-card" id="quick-copy"><b>复制上一张订单</b><span>自动找最近历史订单，带入编辑页修改</span></button>
+        <button class="quick-card" data-go="print-center"><b>进入打印中心</b><span>每页三客户连续打印</span></button>
+        <button class="quick-card" data-go="monthly"><b>月底结账</b><span>按客户核对、导出并锁定月份</span></button>
+        <button class="quick-card" data-go="mobile-access"><b>手机访问</b><span>同一Wi-Fi下用手机录单和查询</span></button>
+      </div>
+      <article class="panel">
+        <div class="panel-head"><div><h2>今日订单</h2><p>按客户打印顺序排列</p></div><button class="primary" data-go="new-order">新增订单</button></div>
+        <div id="today-orders" class="table-wrap"></div>
+      </article>
+    </section>
+
+    <section id="view-new-order" class="view">
+      <form id="order-form" class="panel order-editor">
+        <div id="order-edit-banner" class="edit-order-banner" hidden><div><b>正在修改待打印订单</b><span id="editing-order-no"></span></div><button id="cancel-order-edit" type="button" class="secondary">取消修改</button></div>
+        <div class="form-grid two">
+          <label>订单日期<input id="order-date" type="date" required></label>
+          <label>客户<div class="customer-picker"><input id="order-customer-input" class="customer-autocomplete" autocomplete="off" placeholder="输入一个字搜索客户，点开显示全部"><input id="order-customer" type="hidden"><div class="customer-suggestions"></div></div></label>
+        </div>
+        <div class="panel-head compact"><div><h2>商品明细</h2><p>单位、单价和金额由系统读取计算</p></div><div class="actions"><span class="item-count-badge">已录入 <strong id="order-item-count">0</strong> 样</span><button id="add-item" type="button" class="secondary">＋ 添加商品</button></div></div>
+        <div class="order-table">
+          <div class="order-row order-head"><span>拖动 / 商品名称</span><span>数量</span><span>单位</span><span>单价</span><span>金额</span><span>置顶 / 插入</span></div>
+          <div id="order-items"></div>
+        </div>
+        <label>订单备注<textarea id="order-note" rows="2" placeholder="可不填"></textarea></label>
+        <div class="order-total"><span>订单合计</span><strong id="order-total">¥0.00</strong></div>
+        <div class="actions end">
+          <button type="button" id="delete-current-order" class="danger">清空当前订单</button>
+          <button type="button" id="save-continue" class="secondary">保存并继续添加客户</button>
+          <button type="submit" id="save-order" class="primary">保存订单</button>
+          <button type="button" id="save-print" class="primary dark">保存并进入打印</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="view-print-center" class="view">
+      <article class="panel">
+        <div class="panel-head"><div><h2>三客户连续打印</h2><p>241 × 279.4mm 二联连续纸，纵向三等分</p></div><div class="actions"><button id="select-all-orders" class="secondary">全选待打印</button><button id="mark-selected-printed" class="secondary">多选标记已打印</button><button id="preview-print" class="primary">打印预览</button></div></div>
+        <div class="notice">每3个订单组成一页；不足3个的位置保持空白。打印窗口关闭后确认打印成功，订单会立即变成“已打印”；已打印订单默认不再参与“全选待打印”。</div>
+        <div id="print-orders" class="table-wrap"></div>
+        <div id="print-plan" class="print-plan"></div>
+      </article>
+    </section>
+
+    <section id="view-products" class="view">
+      <article class="panel">
+        <div class="panel-head"><div><h2>商品管理</h2><p>订单单价只从这里读取</p></div><button id="new-product" class="primary">新增商品</button></div>
+        <div class="filters"><input id="product-search" placeholder="搜索商品名称或单位"></div>
+        <div id="products-table" class="table-wrap"></div>
+      </article>
+    </section>
+
+    <section id="view-customers" class="view">
+      <article class="panel">
+        <div class="panel-head"><div><h2>客户管理</h2><p>通过客户名称、电话或地址快速检索</p></div><button id="new-customer" class="primary">新增客户</button></div>
+        <div class="filters"><input id="customer-search" placeholder="搜索客户名称、电话或地址"></div>
+        <div id="customers-table" class="table-wrap"></div>
+      </article>
+    </section>
+
+    <section id="view-customer-prices" class="view">
+      <article class="panel">
+        <div class="panel-head"><div><h2>客户专属价格</h2><p>留空使用商品默认价；填写后，该客户以后新订单和复制昨日订单自动使用专属价</p></div><button id="save-customer-prices" class="primary">保存客户价格</button></div>
+        <div class="filters history-filters"><label>选择客户<div class="customer-picker"><input id="price-customer-input" class="customer-autocomplete" autocomplete="off" placeholder="输入一个字搜索客户，点开显示全部"><input id="price-customer" type="hidden"><div class="customer-suggestions"></div></div></label><label>搜索商品<input id="price-product-search" placeholder="输入商品名称"></label><button id="load-customer-prices" class="secondary">查看价格</button></div>
+        <div class="notice">历史订单仍保留当时成交价，不会跟着这里变动。</div>
+        <div id="customer-prices-table" class="table-wrap"></div>
+      </article>
+    </section>
+
+    <section id="view-ledger" class="view">
+      <article class="panel">
+        <div class="panel-head"><div><h2>客户收款与欠款账本</h2><p>收款按归属月份记录，可查看销售、已收款和欠款</p></div></div>
+        <div class="filters history-filters"><label>归属月份<input id="ledger-month" type="month"></label><label>客户<div class="customer-picker"><input id="ledger-customer-input" class="customer-autocomplete" autocomplete="off" placeholder="输入一个字搜索客户，点开显示全部"><input id="ledger-customer" type="hidden"><div class="customer-suggestions"></div></div></label><button id="load-ledger" class="secondary">查询账本</button></div>
+        <div class="kpi-grid ledger-kpis">
+          <article class="kpi"><span>本月销售</span><strong id="ledger-sales">¥0.00</strong></article>
+          <article class="kpi"><span>已收款</span><strong id="ledger-paid">¥0.00</strong></article>
+          <article class="kpi accent"><span>欠款</span><strong id="ledger-balance">¥0.00</strong></article>
+        </div>
+        <form id="payment-form" class="payment-form">
+          <label>收款日期<input id="payment-date" type="date" required></label>
+          <label>收款金额（元）<input id="payment-amount" type="number" min="0.01" step="0.01" required></label>
+          <label>备注<input id="payment-note" placeholder="例如：微信、现金"></label>
+          <button class="primary" type="submit">登记收款</button>
+        </form>
+        <h3>收款记录</h3><div id="payments-table" class="table-wrap"></div>
+        <h3>本月订单</h3><div id="ledger-orders" class="table-wrap"></div>
+      </article>
+    </section>
+
+    <section id="view-history" class="view">
+      <article class="panel">
+        <div class="panel-head"><div><h2>历史订单</h2><p>按日期、客户、商品查询</p></div></div>
+        <div class="filters history-filters">
+          <label>开始日期<input id="history-from" type="date"></label>
+          <label>结束日期<input id="history-to" type="date"></label>
+          <label>客户<div class="customer-picker"><input id="history-customer-input" class="customer-autocomplete" autocomplete="off" placeholder="全部客户；输入一个字搜索"><input id="history-customer" type="hidden"><div class="customer-suggestions"></div></div></label>
+          <label>商品<div class="product-picker"><input id="history-product-input" class="filter-product-autocomplete" autocomplete="off" placeholder="全部商品；输入一个字搜索"><input id="history-product" type="hidden"><div class="product-suggestions"></div></div></label>
+          <button id="history-search" class="primary">查询</button>
+        </div>
+        <div id="history-table" class="table-wrap"></div>
+      </article>
+    </section>
+
+    <section id="view-monthly" class="view">
+      <article class="panel">
+        <div class="panel-head"><div><h2>月度销售与结账</h2><p>结账后锁定本月订单，避免月底数字变化</p></div><div class="actions"><button id="export-month" class="secondary">导出Excel</button><button id="close-month" class="primary">确认本月结账</button></div></div>
+        <div class="filters"><label>月份<input id="report-month" type="month"></label><label>客户<div class="customer-picker"><input id="report-customer-input" class="customer-autocomplete" autocomplete="off" placeholder="全部客户；输入一个字搜索"><input id="report-customer" type="hidden"><div class="customer-suggestions"></div></div></label><button id="load-report" class="secondary">生成汇总</button></div>
+        <div id="month-status" class="status-banner"></div>
+        <div class="kpi-grid compact-kpis monthly-kpis">
+          <article class="kpi"><span>客户数</span><strong id="report-customer-count">0</strong></article>
+          <article class="kpi"><span>订单次数</span><strong id="report-order-count">0</strong></article>
+          <article class="kpi"><span>销售总额</span><strong id="report-total">¥0.00</strong></article>
+          <article class="kpi"><span>已收款</span><strong id="report-paid">¥0.00</strong></article>
+          <article class="kpi accent"><span>欠款</span><strong id="report-balance">¥0.00</strong></article>
+        </div>
+        <h3>客户汇总</h3><div id="report-customers" class="table-wrap"></div>
+        <h3>商品汇总</h3><div id="report-items" class="table-wrap"></div>
+      </article>
+    </section>
+
+    <section id="view-data" class="view">
+      <div class="two-panels">
+        <article class="panel"><h2>导入旧 Excel</h2><p>读取“商品库”和“客户库”，先预检再写入数据库。</p><input id="excel-file" type="file" accept=".xlsx"><button id="preview-import" class="primary block">检查Excel</button><div id="import-result"></div></article>
+        <article class="panel"><h2>备份数据</h2><p>立即创建一份完整 SQLite 备份。系统每天首次启动也会自动备份。</p><button id="backup-now" class="primary block">立即备份</button><div id="backup-result"></div></article>
+      </div>
+    </section>
+
+    <section id="view-mobile-access" class="view">
+      <article class="panel mobile-access-panel">
+        <div class="panel-head"><div><h2>手机访问系统</h2><p>电脑作为数据主机，手机负责录单和查询</p></div><div class="actions"><button id="install-mobile-app" class="secondary">添加到手机桌面</button><button id="refresh-mobile-access" class="secondary">刷新地址</button></div></div>
+        <div class="notice">手机和这台电脑必须连接同一个Wi-Fi；电脑上的订单系统启动窗口需要一直保持打开。第一次启动如出现Windows防火墙提示，请允许“专用网络”。</div>
+        <div id="offline-sync-status" class="notice">手机离线队列：正在读取…</div>
+        <div id="mobile-access-list" class="mobile-access-list"><div class="empty">正在读取手机访问地址…</div></div>
+        <div class="mobile-steps">
+          <div><b>1</b><span>手机连接与电脑相同的Wi-Fi</span></div>
+          <div><b>2</b><span>在手机浏览器输入上面显示的完整地址</span></div>
+          <div><b>3</b><span>可新增订单、查询历史、查看账本和月度汇总</span></div>
+        </div>
+        <p class="mobile-print-note">Epson针式打印机仍连接在Windows电脑上，因此正式打印请回到电脑的“打印中心”操作。手机端可添加到主屏幕，桌面点击图标即可打开；电脑必须保持启动，手机和电脑需要在同一Wi-Fi。</p>
+      </article>
+    </section>
+
+    <section id="view-settings" class="view">
+      <form id="settings-form" class="panel">
+        <div class="panel-head"><div><h2>商户与打印设置</h2><p>纸型已按实际二联连续纸锁定</p></div><button class="primary" type="submit">保存设置</button></div>
+        <div class="form-grid two">
+          <label>商户抬头<input name="business_name"></label>
+          <label>打印机名称<input name="printer_name"></label>
+          <label class="span-two">地址<input name="business_address"></label>
+          <label class="span-two">电话<input name="business_phone"></label>
+          <div class="span-two layout-settings">
+            <h3>打印机校准（全部为固定物理坐标 mm）</h3>
+            <p>外部联容器坐标只决定三联位于纸张的什么位置；每联内部顶部留白是另一个独立参数，两者不会混用。</p>
+            <h4>外部三联容器坐标</h4>
+            <div class="coordinate-fields">
+              <label>纸张宽度 mm<input name="paper_width_mm" type="number" min="1" step="0.1"></label>
+              <label>纸张高度 mm<input name="paper_height_mm" type="number" min="1" step="0.1"></label>
+              <label>整页左右偏移 mm<input name="print_offset_x_mm" type="number" step="0.1"></label>
+              <label>整页上下偏移 mm<input name="print_offset_y_mm" type="number" step="0.1"></label>
+              <label>第1联容器顶部坐标（外部）mm<input name="slot1_position_top_mm" type="number" min="0" step="0.0001"></label>
+              <label>第2联容器顶部坐标（外部）mm<input name="slot2_position_top_mm" type="number" min="0" step="0.0001"></label>
+              <label>第3联容器顶部坐标（外部）mm<input name="slot3_position_top_mm" type="number" min="0" step="0.0001"></label>
+              <label>每联固定宽度 mm<input name="receipt_width_mm" type="number" min="1" step="0.1"></label>
+              <label>每联容器固定总高度 mm<input name="receipt_height_mm" type="number" min="1" step="0.0001"></label>
+            </div>
+            <h4 class="internal-layout-title">每联内部垂直结构（独立参数）</h4>
+            <div class="coordinate-fields internal-layout-fields">
+              <label class="important-calibration-field">每联内部顶部留白 mm<input name="receipt_top_blank_mm" type="number" min="0" step="0.1"><small>默认8mm；不是第1联容器top</small></label>
+              <label class="important-calibration-field">每联内部订单表格高度 mm<input name="receipt_table_height_mm" type="number" min="1" step="0.1"><small>默认80mm</small></label>
+              <label class="important-calibration-field">每联内部底部留白 mm<input name="receipt_bottom_blank_mm" type="number" min="0" step="0.1"><small>默认5mm</small></label>
+            </div>
+            <div id="coordinate-summary" class="coordinate-summary"></div>
+          </div>
+          <div class="span-two layout-settings content-layout-settings">
+            <h3>内容排版（只改变联内文字，不改变外框坐标和尺寸）</h3>
+            <div class="coordinate-fields">
+              <label>左右内容边距 mm<input name="content_padding_x_mm" type="number" min="0" step="0.1"></label>
+              <label>左右商品栏间距 mm<input name="column_gap_mm" type="number" min="0" step="0.1"></label>
+              <label>基础字体大小 mm<input name="base_font_size_mm" type="number" min="0.5" step="0.1"></label>
+              <label>字符间距 mm<input name="character_spacing_mm" type="number" step="0.05"></label>
+              <label>商品行高 mm<input name="line_height_mm" type="number" min="1" step="0.1"></label>
+            </div>
+            <h4>单侧商品栏各列宽度与间距</h4>
+            <p>左右两栏使用同一组数值。减小“商品名称列宽”会把数量、单价和金额向左收紧；增大“金额列宽”可避免右栏金额显示不全。</p>
+            <div class="coordinate-fields item-column-fields">
+              <label>商品名称列宽 mm<input name="item_product_width_mm" type="number" min="5" step="0.1"></label>
+              <label>商品→数量间距 mm<input name="item_gap_product_quantity_mm" type="number" min="0" step="0.1"></label>
+              <label>数量列宽 mm<input name="item_quantity_width_mm" type="number" min="3" step="0.1"></label>
+              <label>数量→单价间距 mm<input name="item_gap_quantity_price_mm" type="number" min="0" step="0.1"></label>
+              <label>单价列宽 mm<input name="item_unit_price_width_mm" type="number" min="3" step="0.1"></label>
+              <label>单价→金额间距 mm<input name="item_gap_price_amount_mm" type="number" min="0" step="0.1"></label>
+              <label>金额列宽 mm<input name="item_amount_width_mm" type="number" min="5" step="0.1"></label>
+            </div>
+            <div id="item-column-summary" class="item-column-summary"></div>
+          </div>
+        </div>
+        <p class="form-note">默认固定结构：外部三联容器 top 为0、93、186mm；每联内部均为8mm顶部留白 + 80mm订单表格 + 5mm底部留白 = 93mm。纸张最底部保留0.4mm。</p>
+        <div class="actions"><button id="preview-layout" type="button" class="primary">保存并查看三个实际订单（三等分）</button></div>
+      </form>
+    </section>
+  </main>
+
+  <dialog id="edit-dialog">
+    <button type="button" class="dialog-close" data-close-dialog aria-label="关闭弹窗" title="关闭">×</button>
+    <form id="edit-form"><div id="edit-fields"></div><div class="actions end"><button type="button" data-close-dialog class="secondary">取消</button><button type="submit" id="edit-save" class="primary">保存</button></div></form>
+  </dialog>
+  <dialog id="order-detail-dialog">
+    <button type="button" class="dialog-close" data-close-dialog aria-label="关闭弹窗" title="关闭">×</button>
+    <div id="order-detail"></div><div class="actions end dialog-footer"><button type="button" data-close-dialog class="primary">关闭</button></div>
+  </dialog>
+  <dialog id="mobile-connect-dialog">
+    <form id="mobile-connect-form" class="form-grid">
+      <h2>连接电脑订单系统</h2>
+      <p>首次使用请输入电脑启动日志中的“手机访问地址”，以下载商品和客户资料。资料下载后，即使离线也能继续录单，恢复店内 Wi-Fi 会自动同步。</p>
+      <label>电脑地址<input id="mobile-server-url" inputmode="url" placeholder="例如：http://192.168.1.8:37831" required></label>
+      <div class="actions end"><button type="button" id="mobile-connect-later" class="secondary">暂不连接</button><button type="submit" class="primary">保存并连接</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast"></div>
+  <script type="module" src="/app.js?v=2.4.11"></script>
+</body>
+</html>
