@@ -1,7 +1,5 @@
 # Local-First Order Management System
 
-[![Tests](https://github.com/zhangxin714/local-first-order-management-system/actions/workflows/test.yml/badge.svg)](https://github.com/zhangxin714/local-first-order-management-system/actions/workflows/test.yml)
-
 An AI-assisted, local-first order management system designed for a small food
 supplier moving away from an error-prone Excel workflow.
 
