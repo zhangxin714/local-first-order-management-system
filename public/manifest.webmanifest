@@ -1,0 +1,17 @@
+{
+  "name": "本地优先订单管理系统",
+  "short_name": "订单系统",
+  "description": "客户订单录入、历史订单、月度汇总与手机录单",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f1ed",
+  "theme_color": "#bd514a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
