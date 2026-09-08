@@ -1,77 +1,82 @@
-# Project Notes
+# 项目说明
 
-## 1. The problem
+## 1. 项目要解决的问题
 
-The original business workflow relied on repeated Excel entry for customer orders,
-customer-specific prices, monthly reconciliation and continuous-form printing.
-This made historical prices easy to overwrite and made repeated data entry
-error-prone.
+原来的业务流程主要依靠 Excel 录入客户订单、管理不同客户的价格、进行月度对账，以及配合连续打印纸打印订单。
 
-## 2. The solution
+这种方式容易出现重复录入、历史价格被覆盖、金额计算不一致等问题。
 
-This project turns that workflow into a local-first web application. It supports:
+## 2. 项目解决方案
 
-- customer and product management;
-- customer-specific pricing;
-- order entry and payment tracking;
-- historical orders and monthly settlement;
-- offline mobile requests;
-- fixed-format printing;
-- Excel import and export.
+我把这套业务流程整理成了一个本地优先的网页应用，主要支持：
 
-## 3. Important design decisions
+- 客户和商品管理；
+- 不同客户使用不同价格；
+- 订单录入和付款记录；
+- 历史订单查询和月度结算；
+- 手机离线录单后再同步；
+- 固定格式打印；
+- Excel 导入和导出。
 
-### Integer money
+## 3. 重要设计决定
 
-Prices and totals are stored as integer cents rather than floating-point numbers.
-For example, 4.25 yuan is stored as 425 cents. This prevents small rounding
-errors from accumulating in order totals.
+### 金额使用“分”保存
 
-### Precise quantities
+价格和金额使用整数“分”保存，而不是直接使用小数。
 
-Quantities are stored as integer thousandths of a unit. A quantity such as
-1.25 jin is represented as 1250 thousandths. The amount calculation multiplies
-quantity thousandths by price cents and divides by 1000, rounding to the nearest
-cent.
+例如，4.25 元保存为 425 分。这样可以避免计算机处理小数时产生误差。
 
-### Historical snapshots
+### 斤数使用更精确的单位
 
-An order stores the product name, customer, price and calculated amount at the
-time of ordering. If a product price changes later, old orders remain
-financially consistent.
+斤数保存为“千分之一斤”的整数。
 
-### Idempotent offline synchronisation
+例如，1.25 斤保存为 1250。计算金额时，使用：
 
-Offline requests carry a client request ID. If a mobile device retries the same
-request, the server can recognise the duplicate instead of creating a second
-order.
+“斤数千分之一 × 价格（分）÷ 1000”，最后四舍五入到整数分。
 
-### Printing as a domain requirement
+### 保存下单时的历史价格
 
-The printer uses a fixed continuous-form layout. The application therefore uses
-millimetre-based coordinates rather than treating printing as a normal
-responsive web page.
+订单会保存下单时的商品名称、客户、价格和金额。
 
-## 4. What I contributed
+如果以后商品涨价，之前的订单仍然按照原来的价格计算，不会被改变。
 
-I gathered the workflow requirements, identified the business rules, reviewed the
-data model and validation behaviour, checked the system with synthetic demo
-data, and iterated on the implementation with tests and documentation.
+### 防止离线同步产生重复订单
 
-Codex was used to generate and refactor parts of the implementation. I treated
-the generated code as a draft: I reviewed the behaviour, checked calculations
-against concrete examples, and documented the design decisions in this
-repository.
+手机离线请求会带有一个唯一的请求编号。
 
-## 5. Current limitations and next improvements
+如果手机因为网络问题重复发送同一个请求，系统可以识别出这是同一个请求，避免生成两张订单。
 
-This is a local-first portfolio prototype rather than a hosted multi-user
-service. Possible future improvements include authentication, role-based
-permissions, stronger conflict resolution and a hosted deployment.
+### 把打印当作系统需求
 
-## 6. What I learned
+这个业务使用固定尺寸的连续打印纸，因此打印页面不是普通的自适应网页，而是使用毫米坐标精确控制内容位置。
 
-The project helped me connect a real operational problem with software concepts:
-data modelling, validation, fixed-point arithmetic, persistence, idempotency and
-testing. It also showed me that software design starts with understanding the
-workflow and making its rules explicit.
+## 4. 我的实际贡献
+
+我负责整理真实业务流程，识别客户价格、金额计算、历史订单、打印和月结等业务规则，检查数据结构和验证行为，并使用演示数据反复检查系统。
+
+Codex 参与了部分代码的生成和重构。我把生成的代码当作初稿，自己通过具体例子检查计算结果，理解主要设计，并持续完善文档和功能。
+
+## 5. 当前局限和未来改进
+
+这是一个本地优先的项目原型，不是已经部署到云端的多人系统。
+
+未来可以继续增加：
+
+- 用户登录；
+- 不同角色的权限；
+- 更完善的多人数据冲突处理；
+- 云端部署；
+- 更完整的操作记录。
+
+## 6. 我的学习收获
+
+这个项目帮助我把真实业务问题和软件概念联系起来，包括：
+
+- 数据建模；
+- 输入验证；
+- 整数金额计算；
+- 数据持久化；
+- 防止重复请求；
+- 测试和文档。
+
+我也认识到，软件设计的第一步不是马上写代码，而是先理解实际工作流程，把其中的规则明确表达出来。
