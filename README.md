@@ -3,6 +3,16 @@
 An AI-assisted, local-first order management system designed for a small food
 supplier moving away from an error-prone Excel workflow.
 
+## Screenshots
+
+### Daily order dashboard
+
+![Daily order dashboard](home.png)
+
+### Monthly summary and closing
+
+![Monthly summary and closing](monthly-summary.png)
+
 ## Why this project exists
 
 The original workflow required repeated manual entry, customer-specific prices,
