@@ -1,7 +1,7 @@
 # Local-First Order Management System
 
 An AI-assisted, local-first order management system designed for a small food
-supplier moving away from an error-prone Excel workflow.
+supplier moving away from a time-consuming handwritten order workflow.
 
 ## Screenshots
 
@@ -13,12 +13,18 @@ supplier moving away from an error-prone Excel workflow.
 
 ![Monthly summary and closing](monthly-summary.png)
 
+## Project documentation
+
+- [项目说明（中文）](PROJECT_NOTES.md)
+- [Project notes (English)](PROJECT_NOTES_EN.md)
+- [Privacy and safe demo-data rules](PRIVACY.md)
+
 ## Why this project exists
 
-The original workflow required repeated manual entry, customer-specific prices,
-monthly reconciliation and a fixed three-copy continuous-form printer. This
-project models those rules explicitly so that calculations, historical prices
-and accounting records remain consistent.
+The original workflow required handwritten order copying, customer-specific
+prices, monthly reconciliation and a fixed three-copy continuous-form printer.
+This project models those rules explicitly so that calculations, historical
+prices and accounting records remain consistent.
 
 ## Features
 
@@ -30,7 +36,6 @@ and accounting records remain consistent.
 - Offline mobile order queue with duplicate-sync protection
 - Printable three-customer continuous-form layout with millimetre coordinates
 - Monthly sales reports, customer ledgers, payments and month closing
-- Excel import preview and monthly Excel export
 - SQLite persistence, automatic backup support and automated domain tests
 
 ## Technology
@@ -38,7 +43,6 @@ and accounting records remain consistent.
 - Node.js (ES modules)
 - SQLite
 - HTML, CSS and vanilla JavaScript
-- ExcelJS for workbook export
 - Node.js built-in test runner
 
 ## Run locally
