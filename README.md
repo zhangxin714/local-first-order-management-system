@@ -35,11 +35,13 @@ and accounting records remain consistent.
 
 ```bash
 pnpm install
+pnpm demo:seed
 pnpm start
 ```
 
-The application is intended to run as a local service. The repository contains
-no real customer database; use synthetic data for demonstrations.
+The application is intended to run as a local service. `pnpm demo:seed` creates
+only synthetic data in the ignored `data/demo.sqlite` file; it is safe to use
+for demonstrations and is never committed to the repository.
 
 Run the automated tests with:
 
