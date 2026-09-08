@@ -1,0 +1,29 @@
+{
+  "name": "local-first-order-management-system",
+  "version": "1.0.0",
+  "description": "面向小型食品供应商的本地优先订单、月结与连续打印系统",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [],
+  "author": "Xin Zhang",
+  "license": "MIT",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.19.0",
+      "onFail": "download"
+    }
+  },
+  "type": "module",
+  "dependencies": {
+    "exceljs": "4.4.0",
+    "jszip": "3.10.1"
+  },
+  "devDependencies": {
+    "esbuild-wasm": "0.25.12"
+  }
+}
