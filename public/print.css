@@ -1,0 +1,65 @@
+:root { --paper-width: 241mm; --paper-height: 279.4mm; --receipt-left: 12mm; --receipt-width: 217mm; --receipt-height: 93mm; --receipt-top-blank: 8mm; --receipt-table-height: 80mm; --receipt-table-bottom: 88mm; --receipt-bottom-blank: 5mm; --slot1-top: 0mm; --slot2-top: 93mm; --slot3-top: 186mm; --offset-x: 0mm; --offset-y: 0mm; --content-padding-x: 2mm; --column-gap: 10mm; --character-spacing: 0mm; --title-font: 6.17mm; --meta-font: 3.7mm; --meta-strong-font: 4.05mm; --header-font: 3.28mm; --item-font-base: 3.88mm; --item-font-compact: 3.49mm; --item-font-dense: 2.99mm; --item-font-ultra: 2.48mm; --total-font: 4.05mm; --total-strong-font: 4.94mm; --footer-font: 3.7mm; --row-height-base: 4.2mm; --row-height-compact: 3.78mm; --row-height-dense: 3.23mm; --row-height-ultra: 2.69mm; }
+:root { --item-product-width: 32mm; --item-quantity-width: 14mm; --item-unit-price-width: 15mm; --item-amount-width: 28mm; --item-gap-product-quantity: 1mm; --item-gap-quantity-price: 1mm; --item-gap-price-amount: 1mm; --footer-font-fixed: 3.7mm; }
+* { box-sizing: border-box; }
+body { margin: 0; color: #000; background: #cbc7c4; font-family: "Microsoft YaHei", "SimSun", sans-serif; }
+.print-toolbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 20px; color: #fff; background: #332927; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+.print-toolbar span { margin-left: 15px; color: #d9cbc7; }
+.print-toolbar small { display: block; margin-top: 5px; color: #ffd9a0; font-weight: 700; }
+.print-toolbar button { margin-left: 8px; border: 0; border-radius: 7px; padding: 9px 13px; cursor: pointer; font-weight: 700; }
+#do-print, #mark-printed { color: #fff; background: #b84c46; }
+#print-root { display: grid; gap: 18px; justify-content: center; padding: 24px; }
+.print-page { position: relative; width: var(--paper-width); height: var(--paper-height); overflow: hidden; background: #fff; outline: 2px solid #216dcc; box-shadow: 0 8px 30px rgba(0,0,0,.2); }
+.print-page:not(:last-child) { break-after: page; page-break-after: always; }
+.page-content { position: relative; width: var(--paper-width); height: var(--paper-height); }
+.receipt { position: absolute; left: var(--receipt-left); width: var(--receipt-width); height: var(--receipt-height); overflow: hidden; transform: translate(var(--offset-x), var(--offset-y)); outline: .45mm dashed #2680eb; outline-offset: -.45mm; }
+.receipt:nth-child(1) { top: var(--slot1-top); }
+.receipt:nth-child(2) { top: var(--slot2-top); }
+.receipt:nth-child(3) { top: var(--slot3-top); }
+.receipt-inner { position: absolute; top: var(--receipt-top-blank); left: 0mm; width: var(--receipt-width); height: var(--receipt-table-height); display: grid; grid-template-rows: 9.5mm 8mm minmax(0, 1fr) 8.5mm 8mm; overflow: hidden; border: .28mm solid #222; letter-spacing: var(--character-spacing); }
+.receipt-title { display: flex; align-items: center; justify-content: center; color: #000; border-bottom: .28mm solid #222; font-family: "SimHei", "Microsoft YaHei", sans-serif; font-size: var(--title-font); font-weight: 900; letter-spacing: calc(.5mm + var(--character-spacing)); }
+.receipt-meta { display: grid; grid-template-columns: 1.2fr .8fr; align-items: center; border-bottom: .25mm solid #333; font-size: var(--meta-font); }
+.receipt-meta > span { padding: 0 var(--content-padding-x); }
+.receipt-meta .date { padding-left: 1mm; text-align: left; }
+.receipt-meta strong { font-size: var(--meta-strong-font); }
+.receipt-items { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--column-gap); min-height: 0; overflow: hidden; border-bottom: .25mm solid #333; padding: 0 var(--content-padding-x); }
+.item-column { display: grid; grid-template-rows: 5.2mm repeat(var(--item-rows), var(--item-row-height)); align-content: start; min-height: 0; overflow: hidden; }
+.item-header, .item-row { display: grid; grid-template-columns: var(--item-product-width) var(--item-gap-product-quantity) var(--item-quantity-width) var(--item-gap-quantity-price) var(--item-unit-price-width) var(--item-gap-price-amount) var(--item-amount-width); justify-content: start; align-items: center; min-width: 0; }
+.item-header { border-bottom: .25mm solid #555; font-size: var(--header-font); font-weight: 800; line-height: 1; }
+.item-header span { min-width: 0; white-space: nowrap; }
+.item-header .qty, .item-header .price, .item-header .amount { text-align: right; }
+.item-gap { min-width: 0; }
+.item-row { min-height: 0; overflow: hidden; border-bottom: .18mm solid #999; font-size: var(--item-font, var(--item-font-base)); line-height: 1; }
+.item-column .item-row:last-child { border-bottom: 0; }
+.item-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-row .qty { display: grid; grid-template-columns: minmax(0, 1fr) 4.5mm; padding: 0; font-variant-numeric: tabular-nums; }
+.item-row .price, .item-row .amount { display: grid; grid-template-columns: 4mm minmax(0, 1fr); font-variant-numeric: tabular-nums; }
+.item-row .operator { text-align: center; }
+.item-row .numeric { text-align: right; }
+.item-row .unit { text-align: left; }
+.receipt-total { display: flex; align-items: center; padding: 0 var(--content-padding-x); border-bottom: .25mm solid #333; font-size: var(--total-font); font-weight: 700; }
+.receipt-total strong { margin-left: 7mm; font-size: var(--total-strong-font); }
+.receipt-footer { display: flex; align-items: center; padding: 0 1.2mm; overflow: hidden; white-space: nowrap; font-family: "Microsoft YaHei", "SimHei", sans-serif; font-size: var(--footer-font-fixed); font-weight: 800; letter-spacing: -.25mm; }
+.receipt-footer .footer-line { display: block; min-width: 0; overflow: hidden; white-space: nowrap; }
+.receipt-footer .footer-phone { margin-left: 1.5mm; }
+.receipt-footer .footer-phone-number { font-family: Arial, "Microsoft YaHei", "SimHei", sans-serif; font-weight: 900; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.receipt { --item-row-height: var(--row-height-base); }
+.receipt.compact { --item-font: var(--item-font-compact); --item-row-height: var(--row-height-compact); }
+.receipt.dense { --item-font: var(--item-font-dense); --item-row-height: var(--row-height-dense); }
+.receipt.ultra { --item-font: var(--item-font-ultra); --item-row-height: var(--row-height-ultra); }
+.receipt.empty .receipt-inner { visibility: hidden; }
+.top-blank-guide, .bottom-blank-guide { position: absolute; z-index: 4; left: 0mm; width: var(--receipt-width); display: flex; align-items: center; justify-content: center; pointer-events: none; color: #1769c2; background: rgba(226,240,255,.68); font-family: "Microsoft YaHei", sans-serif; font-size: 2.3mm; font-weight: 800; line-height: 1; }
+.top-blank-guide { top: 0mm; height: var(--receipt-top-blank); border-bottom: .25mm dashed #2680eb; }
+.bottom-blank-guide { top: var(--receipt-table-bottom); height: var(--receipt-bottom-blank); border-top: .25mm dashed #2680eb; }
+.table-zone-guide { position: absolute; z-index: 5; top: var(--receipt-top-blank); right: .8mm; padding: .6mm 1mm; pointer-events: none; color: #1769c2; background: rgba(234,244,255,.94); font-family: "Microsoft YaHei", sans-serif; font-size: 2.3mm; font-weight: 800; line-height: 1; }
+.slot-guide { position: absolute; z-index: 6; top: .6mm; left: .6mm; right: .6mm; display: flex; align-items: center; justify-content: space-between; pointer-events: none; color: #1769c2; font-family: "Microsoft YaHei", sans-serif; font-size: 2.4mm; font-weight: 800; line-height: 1; }
+.slot-guide b, .slot-guide span { padding: .7mm 1.2mm; border-radius: 1mm; background: rgba(234,244,255,.94); }
+
+@page { size: 241mm 279.4mm; margin: 0; }
+@media print {
+  body { background: #fff; }
+  .print-toolbar { display: none !important; }
+  #print-root { display: block; padding: 0; }
+  .print-page { margin: 0; outline: none; box-shadow: none; }
+  .receipt { outline: none; }
+  .slot-guide, .top-blank-guide, .bottom-blank-guide, .table-zone-guide { display: none; }
+}
