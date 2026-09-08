@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#bd514a"/>
+  <path d="M102 150h308v212H102z" fill="#fff9f6" opacity=".96"/>
+  <path d="M130 198h252M130 254h252M130 310h170" stroke="#bd514a" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="352" cy="310" r="35" fill="#d5a350"/>
+  <text x="256" y="130" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="70" font-weight="700" fill="#fff">豆</text>
+</svg>
